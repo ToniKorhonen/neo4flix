@@ -1,0 +1,62 @@
+spring:
+  application:
+    name: film-service
+  
+  profiles:
+    active: local
+  
+  neo4j:
+    uri: bolt://localhost:7687
+    authentication:
+      username: neo4j
+      password: neo4jpassword
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/neo4flix
+    username: postgres
+    password: postgrespassword
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 2000ms
+      jedis:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+  
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000
+
+server:
+  port: 8001
+  servlet:
+    context-path: /api/v1
+
+logging:
+  level:
+    root: INFO
+    com.neo4flix: DEBUG
+    org.springframework.web: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+

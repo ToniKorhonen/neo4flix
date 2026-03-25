@@ -1,0 +1,59 @@
+spring:
+  profiles:
+    active: docker
+  
+  # Neo4j Configuration
+  neo4j:
+    uri: ${NEO4J_URI:bolt://neo4j:7687}
+    authentication:
+      username: ${NEO4J_AUTH_USERNAME:neo4j}
+      password: ${NEO4J_AUTH_PASSWORD:neo4jpassword}
+  
+  # PostgreSQL Configuration
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/neo4flix}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgrespassword}
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  
+  # Redis Configuration
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+      timeout: ${REDIS_TIMEOUT:2000ms}
+      jedis:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+  
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000
+
+# Logging
+logging:
+  level:
+    root: ${LOG_LEVEL:INFO}
+    com.neo4flix: DEBUG
+    org.springframework.web: DEBUG
+
+# Management (Actuator)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+

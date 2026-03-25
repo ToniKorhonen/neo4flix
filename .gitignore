@@ -1,0 +1,68 @@
+# IDE
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+*.swp
+*.swo
+*~
+
+# Build Output
+target/
+dist/
+build/
+out/
+
+# Compiled files
+*.class
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+logs/
+*.log.*
+
+# Environment & Configuration
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+*.tmp
+.thumbs.db
+
+# Node & Frontend
+node_modules/
+npm-debug.log
+yarn-error.log
+.angular/
+
+# Maven
+.classpath
+.project
+.settings/
+bin/
+dependency-reduced-pom.xml
+
+# Runtime
+*.pid
+*.seed
+*.pid.lock
+
+# Misc
+.cache/
+
+# Test coverage
+coverage/
+cypress/videos/
+cypress/screenshots/
+
+# Docker
+docker-compose.override.yml
+
+
