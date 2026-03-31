@@ -4,14 +4,47 @@
 
 ## ⚡ Quick Start
 
+### Using Docker (Recommended - HTTPS Frontend)
 ```bash
-# Start all services
-sudo ./scripts/start.sh
+# Generate SSL certificates (first time only)
+bash scripts/init-certs.sh
+
+# Start all services with HTTPS frontend
+docker compose up -d
 
 # Access the application
-# Frontend:       http://localhost:4200
-# API Gateway:    http://localhost:8080
+# Frontend:       https://localhost (HTTPS)
+# API Gateway:    http://localhost:8080 (HTTP, internal only)
 # Neo4j Browser:  http://localhost:7474 (neo4j/neo4jpassword)
+
+# View logs
+docker compose logs -f
+
+# Stop everything
+docker compose down
+```
+
+### Local Development (HTTPS)
+```bash
+# 1. Generate certificates (first time only)
+bash scripts/init-certs.sh
+
+# 2. In one terminal, start backend services
+sudo ./scripts/start.sh
+
+# 3. In another terminal, start Angular dev server with HTTPS
+cd frontend
+npm install
+npm start
+# Automatically launches on https://localhost:4200 with HTTPS
+# Your browser will show a security warning for the self-signed cert - this is normal
+```
+
+### Alternative: HTTP Development (without HTTPS)
+```bash
+cd frontend
+npm install
+ng serve  # Plain HTTP on http://localhost:4200
 ```
 
 ## 🏗️ Architecture
@@ -19,17 +52,36 @@ sudo ./scripts/start.sh
 ### Services
 | Service | Port | Purpose |
 |---------|------|---------|
-| **Frontend** | 4200 | Angular web application |
-| **API Gateway** | 8080 | Single entry point for all requests |
-| **Film Service** | 8001 | Movie CRUD operations |
-| **User Service** | 8002 | User profiles & management |
-| **Rating Service** | 8003 | User ratings & reviews |
-| **Recommendation Service** | 8004 | Personalized recommendations |
-| **Auth Service** | 8005 | JWT authentication |
+| **Frontend** | 443 (HTTPS) | Angular web application |
+| **API Gateway** | 8080 (HTTP) | Single entry point for all requests |
+| **Film Service** | 8001 (HTTP) | Movie CRUD operations |
+| **User Service** | 8002 (HTTP) | User profiles & management |
+| **Rating Service** | 8003 (HTTP) | User ratings & reviews |
+| **Recommendation Service** | 8004 (HTTP) | Personalized recommendations |
+| **Auth Service** | 8005 (HTTP) | JWT authentication |
 
 ### Databases
 - **Neo4j** (7687/7474) - Graph database for relationships
 - **PostgreSQL** (5432) - Relational database for transactions
+
+## 🔐 SSL/TLS Certificates
+
+### Generate Certificates
+```bash
+# Self-signed certificates are auto-generated for local development
+bash scripts/init-certs.sh
+
+# This creates:
+# - frontend/certs/cert.pem
+# - frontend/certs/key.pem
+# Valid for 365 days
+```
+
+**Note**: These are self-signed certificates. Your browser will show a security warning—this is normal for local development.
+
+### Certificate Replacement
+- For **production**: Replace `cert.pem` and `key.pem` with real certificates from Let's Encrypt or your CA
+- For **local**: Regenerate with the init script if expired
 
 ## 📋 Prerequisites
 

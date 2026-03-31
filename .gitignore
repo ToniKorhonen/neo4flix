@@ -49,6 +49,10 @@ yarn-error.log
 bin/
 dependency-reduced-pom.xml
 
+# Certificates (generated locally, not committed)
+frontend/certs/*.pem
+!scripts/init-certs.sh
+
 # Runtime
 *.pid
 *.seed
