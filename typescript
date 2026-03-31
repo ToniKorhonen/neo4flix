@@ -1,0 +1,8 @@
+Script démarré sur 2026-03-31 08:07:56+02:00 [TERM="xterm-256color" TTY="/dev/pts/2" COLUMNS="219" LINES="13"]
+[?2004h]0;root@laptopnathan: /home/nathan/neo4flix_testroot@laptopnathan:/home/nathan/neo4flix_test# qq[K[K^C[?2004l[?2004h[?2004l
+[?2004h]0;root@laptopnathan: /home/nathan/neo4flix_testroot@laptopnathan:/home/nathan/neo4flix_test# ^C[?2004l[?2004h[?2004l
+[?2004h]0;root@laptopnathan: /home/nathan/neo4flix_testroot@laptopnathan:/home/nathan/neo4flix_test# ^C[?2004l[?2004h[?2004l
+[?2004h]0;root@laptopnathan: /home/nathan/neo4flix_testroot@laptopnathan:/home/nathan/neo4flix_test# exitsystemctl status tlp.service exit[K
+[?2004lexit
+
+Script terminé sur 2026-03-31 08:08:14+02:00 [COMMAND_EXIT_CODE="130"]

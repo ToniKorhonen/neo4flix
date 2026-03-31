@@ -17,16 +17,6 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  
-  data:
-    redis:
-      host: localhost
-      port: 6379
-  
-  cache:
-    type: redis
-    redis:
-      time-to-live: 600000
 
 server:
   port: 8005
@@ -34,7 +24,7 @@ server:
     context-path: /api/v1
 
 jwt:
-  secret: neo4flix-secret-key-change-in-production-environment
+  secret: aVeryLongSecureKeyForJWTThatIsAtLeast64CharactersLongForHS512AlgorithmSecurityPurpose
   expiration: 86400000  # 24 hours in milliseconds
   refresh-expiration: 604800000  # 7 days in milliseconds
 

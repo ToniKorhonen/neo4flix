@@ -65,4 +65,6 @@ cypress/screenshots/
 # Docker
 docker-compose.override.yml
 
-
+# Exercice files
+EXERCICE.md
+AUDIT.md

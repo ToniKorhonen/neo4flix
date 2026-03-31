@@ -2,12 +2,38 @@ spring:
   application:
     name: api-gateway
   
+  main:
+    web-application-type: reactive
+  
   profiles:
     active: local
   
   cloud:
     gateway:
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        cors-configurations:
+          '[/**]':
+            allowedOriginPatterns: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+              - PATCH
+              - HEAD
+            allowedHeaders: "*"
+            exposedHeaders:
+              - "Authorization"
+              - "Content-Type"
+            allowCredentials: false
+            maxAge: 3600
       routes:
+        - id: auth-service
+          uri: http://localhost:8005
+          predicates:
+            - Path=/api/v1/auth/**
         - id: film-service
           uri: http://localhost:8001
           predicates:
@@ -30,12 +56,6 @@ spring:
           uri: http://localhost:8004
           predicates:
             - Path=/api/v1/recommendations/**
-          filters:
-            - StripPrefix=2
-        - id: auth-service
-          uri: http://localhost:8005
-          predicates:
-            - Path=/api/v1/auth/**
           filters:
             - StripPrefix=2
 
