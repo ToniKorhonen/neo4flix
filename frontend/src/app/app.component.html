@@ -1,3 +1,26 @@
-<h1>{{ title }}</h1>
+<nav class="navbar" *ngIf="isLoggedIn">
+  <div class="navbar-container">
+    <div class="navbar-brand">
+      <h1>Neo4flix</h1>
+    </div>
+    <ul class="navbar-menu">
+      <li>
+        <a routerLink="/films" routerLinkActive="active">Films</a>
+      </li>
+      <li>
+        <a routerLink="/ratings" routerLinkActive="active">Évaluations</a>
+      </li>
+      <li>
+        <a routerLink="/recommendations" routerLinkActive="active">Recommandations</a>
+      </li>
+      <li>
+        <button class="logout-btn" (click)="logout()">Déconnexion</button>
+      </li>
+    </ul>
+  </div>
+</nav>
+
 <router-outlet></router-outlet>
+
+
 

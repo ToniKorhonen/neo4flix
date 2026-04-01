@@ -1,5 +1,40 @@
 <div class="films-container">
-  <h2>Films</h2>
-  <p>Films module coming soon...</p>
+  <div class="header">
+    <div class="title-section">
+      <h1>Films</h1>
+      <a routerLink="/ratings" class="btn-ratings">Évaluer les films</a>
+    </div>
+    <div class="search-bar">
+      <input
+        type="text"
+        placeholder="Rechercher par titre ou genre..."
+        [(ngModel)]="searchQuery"
+        (input)="searchFilms()"
+        class="search-input"
+      />
+    </div>
+  </div>
+
+  <div class="films-grid">
+    <div *ngIf="filteredFilms.length === 0" class="no-results">
+      <p>Aucun film trouvé</p>
+    </div>
+
+    <div *ngFor="let film of filteredFilms" class="film-card">
+      <a [routerLink]="['/films', film.id]" class="film-link">
+        <div class="film-poster">
+          <img [src]="film.poster" [alt]="film.title" />
+        </div>
+        <div class="film-info">
+          <h3>{{ film.title }}</h3>
+          <p class="year">{{ film.releaseDate }}</p>
+          <p class="genre">{{ film.genre }}</p>
+          <div class="rating">
+            <span class="stars">★ {{ film.rating }}</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
 </div>
 

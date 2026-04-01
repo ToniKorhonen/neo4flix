@@ -3,3 +3,124 @@
   display: block;
 }
 
+.navbar {
+  background-color: #000;
+  border-bottom: 2px solid #e50914;
+  padding: 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  .navbar-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 70px;
+
+    .navbar-brand {
+      h1 {
+        font-size: 1.8rem;
+        color: #e50914;
+        margin: 0;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+    }
+
+    .navbar-menu {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      gap: 30px;
+      align-items: center;
+
+      li {
+        a,
+        .logout-btn {
+          color: #fff;
+          text-decoration: none;
+          font-weight: 500;
+          font-size: 1rem;
+          transition: color 0.3s ease;
+          border: none;
+          background: none;
+          cursor: pointer;
+          padding: 0;
+
+          &:hover {
+            color: #e50914;
+          }
+
+          &.active {
+            color: #e50914;
+            border-bottom: 2px solid #e50914;
+            padding-bottom: 5px;
+          }
+        }
+
+        .logout-btn {
+          padding: 8px 16px;
+          border: 1px solid #e50914;
+          border-radius: 5px;
+          color: #e50914;
+          font-size: 0.95rem;
+
+          &:hover {
+            background-color: #e50914;
+            color: #000;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar .navbar-container {
+    padding: 0 15px;
+    height: 60px;
+
+    .navbar-brand h1 {
+      font-size: 1.4rem;
+    }
+
+    .navbar-menu {
+      gap: 15px;
+
+      li a,
+      li .logout-btn {
+        font-size: 0.9rem;
+      }
+
+      li .logout-btn {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar .navbar-container {
+    flex-direction: column;
+    height: auto;
+    padding: 10px 15px;
+
+    .navbar-brand h1 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+
+    .navbar-menu {
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+  }
+}
+
+

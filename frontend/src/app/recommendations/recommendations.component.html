@@ -1,0 +1,59 @@
+<div class="recommendations-container">
+  <div class="header">
+    <h1>Recommandations pour vous</h1>
+    <p class="subtitle">Découvrez les films que nous vous recommandons basés sur vos évaluations</p>
+  </div>
+
+  <div class="filters-section">
+    <div class="filter-group">
+      <label for="genre-filter">Filtrer par genre:</label>
+      <select
+        id="genre-filter"
+        [(ngModel)]="selectedGenre"
+        (change)="filterByGenre()"
+        class="filter-select"
+      >
+        <option value="">Tous les genres</option>
+        <option *ngFor="let genre of genres" [value]="genre">
+          {{ genre }}
+        </option>
+      </select>
+    </div>
+
+    <div class="sort-buttons">
+      <button class="btn btn-sort" (click)="sortByRating()">Mieux notés</button>
+      <button class="btn btn-sort" (click)="sortByNewest()">Plus récents</button>
+      <button class="btn btn-reset" (click)="resetFilters()">Réinitialiser</button>
+    </div>
+  </div>
+
+  <div class="recommendations-grid">
+    <div *ngIf="filteredRecommendations.length === 0" class="no-recommendations">
+      <p>Aucune recommandation trouvée avec ces filtres</p>
+    </div>
+
+    <div *ngFor="let film of filteredRecommendations" class="recommendation-card">
+      <a [routerLink]="['/films', film.id]" class="card-link">
+        <div class="card-poster">
+          <img [src]="film.poster" [alt]="film.title" />
+          <div class="rating-overlay">
+            <span class="rating-badge">★ {{ film.rating }}/10</span>
+          </div>
+        </div>
+
+        <div class="card-content">
+          <h3>{{ film.title }}</h3>
+          <p class="meta">{{ film.releaseDate }} • {{ film.genre }}</p>
+          <p class="reason">{{ film.reason }}</p>
+
+          <button class="btn btn-primary" type="button">
+            Voir détails
+          </button>
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
+
+
+

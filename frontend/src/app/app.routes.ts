@@ -17,6 +17,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'films/:id',
+    loadComponent: () => import('./films/film-detail/film-detail.component').then(m => m.FilmDetailComponent),
+    canActivate: [authGuard]
+  },
+  {
     path: 'users',
     loadComponent: () => import('./users/users.component').then(m => m.UsersComponent),
     canActivate: [authGuard]
@@ -24,6 +29,16 @@ export const routes: Routes = [
   {
     path: 'ratings',
     loadComponent: () => import('./ratings/ratings.component').then(m => m.RatingsComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'ratings/:filmId',
+    loadComponent: () => import('./ratings/ratings.component').then(m => m.RatingsComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'recommendations',
+    loadComponent: () => import('./recommendations/recommendations.component').then(m => m.RecommendationsComponent),
     canActivate: [authGuard]
   }
 ];

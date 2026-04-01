@@ -1,0 +1,55 @@
+<div class="film-detail-container" *ngIf="film">
+  <div class="film-header">
+    <a routerLink="/films" class="back-button">← Retour aux films</a>
+  </div>
+
+  <div class="film-content">
+    <div class="film-poster-section">
+      <img [src]="film.poster" [alt]="film.title" class="film-poster" />
+    </div>
+
+    <div class="film-info-section">
+      <h1 class="title">{{ film.title }}</h1>
+
+      <div class="metadata">
+        <span class="year">{{ film.releaseDate }}</span>
+        <span class="duration" *ngIf="film.duration">{{ film.duration }} min</span>
+      </div>
+
+      <div class="rating-section">
+        <span class="rating-stars">★ {{ film.rating }}/10</span>
+      </div>
+
+      <div class="genre">
+        <strong>Genre:</strong> {{ film.genre }}
+      </div>
+
+      <div class="director" *ngIf="film.director">
+        <strong>Réalisateur:</strong> {{ film.director }}
+      </div>
+
+      <div class="cast" *ngIf="film.cast">
+        <strong>Acteurs:</strong> {{ film.cast }}
+      </div>
+
+      <div class="description" *ngIf="film.description">
+        <h3>Synopsis</h3>
+        <p>{{ film.description }}</p>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" [routerLink]="['/ratings', film.id]">Évaluer ce film</button>
+        <button class="btn btn-secondary">Ajouter à la watchlist</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="film-detail-container" *ngIf="!film">
+  <div class="no-film">
+    <p>Film non trouvé</p>
+    <a routerLink="/films" class="back-button">Retour aux films</a>
+  </div>
+</div>
+
+
