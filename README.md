@@ -47,6 +47,58 @@ npm install
 ng serve  # Plain HTTP on http://localhost:4200
 ```
 
+## 🗄️ Neo4j Database
+
+### MovieLens 100K Dataset
+
+**⚠️ SETUP REQUIRED**: 
+1. Download the dataset from [GroupLens](https://grouplens.org/datasets/movielens/100k/)
+2. Extract to the `ml-100k/` directory
+3. Generate the import file:
+   ```bash
+   node scripts/parse-movielens.js
+   ```
+   This creates `NEO4J_INIT.cypher` (105,556 Cypher statements for 943 users, 1,682 movies, 100,000 ratings, 19 genres)
+
+**Dataset includes**: 943 users | 1,682 movies | 100,000 ratings | 19 genres
+
+### Setup
+
+#### Local Development
+```bash
+# 1. Start Neo4j
+bash scripts/start-neo4j.sh
+
+# 2. Import MovieLens 100K dataset
+bash scripts/import-neo4j-local.sh
+
+# 3. Access Neo4j Browser: http://localhost:7474
+# Credentials: neo4j / neo4jpassword
+```
+
+#### Docker Deployment
+```bash
+# Start all services (including Neo4j with auto-import)
+./scripts/start.sh
+
+# Or manually:
+docker compose up -d
+
+# Access Neo4j: http://localhost:7474 (credentials: neo4j / neo4jpassword)
+```
+
+#### Stop & Cleanup
+```bash
+bash scripts/stop-neo4j.sh
+```
+
+### Graph Model
+
+```
+(User) --[RATED {rating, timestamp}]--> (Movie) --[HAS_GENRE]--> (Genre)
+```
+
+
 ## 🏗️ Architecture
 
 ### Services
