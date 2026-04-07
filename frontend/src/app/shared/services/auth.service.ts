@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { environment } from '@environments/environment';
 
 export interface AuthResponse {
@@ -26,6 +26,8 @@ export interface LoginRequest {
 })
 export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
+  private authStatusSubject = new BehaviorSubject<boolean>(this.isAuthenticatedSync());
+  public authStatus$ = this.authStatusSubject.asObservable();
 
   constructor(private http: HttpClient) { }
 
@@ -39,6 +41,7 @@ export class AuthService {
 
   logout(): void {
     localStorage.removeItem(environment.jwtTokenKey);
+    this.authStatusSubject.next(false);
   }
 
   getToken(): string | null {
@@ -47,9 +50,14 @@ export class AuthService {
 
   setToken(token: string): void {
     localStorage.setItem(environment.jwtTokenKey, token);
+    this.authStatusSubject.next(true);
   }
 
   isAuthenticated(): boolean {
+    return this.isAuthenticatedSync();
+  }
+
+  private isAuthenticatedSync(): boolean {
     return !!this.getToken();
   }
 

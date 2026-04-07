@@ -40,11 +40,15 @@
         align-items: center;
         justify-content: center;
         min-height: 400px;
-        font-size: 0.9rem;
         color: #fff;
         text-align: center;
         padding: 10px;
         flex-shrink: 0;
+        font-size: 0;
+      }
+
+      .film-poster img {
+        font-size: 1rem;
       }
     }
 

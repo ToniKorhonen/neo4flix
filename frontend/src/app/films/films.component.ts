@@ -25,8 +25,14 @@ interface Film {
 export class FilmsComponent implements OnInit {
   films: Film[] = [];
   filteredFilms: Film[] = [];
+  paginatedFilms: Film[] = [];
   searchQuery: string = '';
   loading: boolean = false;
+  
+  // Pagination
+  currentPage: number = 1;
+  itemsPerPage: number = 30;
+  totalPages: number = 1;
 
   constructor(private filmService: FilmService) {}
 
@@ -49,6 +55,7 @@ export class FilmsComponent implements OnInit {
           description: film.description
         }));
         this.filteredFilms = [...this.films];
+        this.updatePagination();
         this.loading = false;
       },
       error: (err) => {
@@ -68,6 +75,33 @@ export class FilmsComponent implements OnInit {
         (film.genre?.toLowerCase().includes(query) ?? false)
       );
     }
+    this.currentPage = 1; // Réinitialiser à la première page
+    this.updatePagination();
+  }
+
+  updatePagination() {
+    this.totalPages = Math.ceil(this.filteredFilms.length / this.itemsPerPage);
+    this.goToPage(this.currentPage);
+  }
+
+  goToPage(pageNumber: number) {
+    if (pageNumber < 1 || pageNumber > this.totalPages) {
+      return;
+    }
+    this.currentPage = pageNumber;
+    const startIndex = (pageNumber - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedFilms = this.filteredFilms.slice(startIndex, endIndex);
+    // Scroll to top of page
+    window.scrollTo(0, 0);
+  }
+
+  previousPage() {
+    this.goToPage(this.currentPage - 1);
+  }
+
+  nextPage() {
+    this.goToPage(this.currentPage + 1);
   }
 }
 

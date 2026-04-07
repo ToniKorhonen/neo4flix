@@ -2,7 +2,6 @@
   <div class="header">
     <div class="title-section">
       <h1>Films</h1>
-      <a routerLink="/ratings" class="btn-ratings">Évaluer les films</a>
     </div>
     <div class="search-bar">
       <input
@@ -16,11 +15,11 @@
   </div>
 
   <div class="films-grid">
-    <div *ngIf="filteredFilms.length === 0" class="no-results">
+    <div *ngIf="paginatedFilms.length === 0" class="no-results">
       <p>Aucun film trouvé</p>
     </div>
 
-    <div *ngFor="let film of filteredFilms" class="film-card">
+    <div *ngFor="let film of paginatedFilms" class="film-card">
       <a [routerLink]="['/films', film.id]" class="film-link">
         <div class="film-poster">
           <img [src]="film.poster" [alt]="film.title" />
@@ -35,6 +34,29 @@
         </div>
       </a>
     </div>
+  </div>
+
+  <!-- Pagination Controls -->
+  <div *ngIf="totalPages > 1" class="pagination-controls">
+    <button
+      class="pagination-btn"
+      (click)="previousPage()"
+      [disabled]="currentPage === 1"
+    >
+      ← Précédent
+    </button>
+
+    <span class="pagination-info">
+      Page {{ currentPage }} / {{ totalPages }}
+    </span>
+
+    <button
+      class="pagination-btn"
+      (click)="nextPage()"
+      [disabled]="currentPage === totalPages"
+    >
+      Suivant →
+    </button>
   </div>
 </div>
 

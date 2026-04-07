@@ -64,14 +64,14 @@
 
         .logout-btn {
           padding: 8px 16px;
-          border: 1px solid #e50914;
+          border: none;
           border-radius: 5px;
-          color: #e50914;
+          background-color: #e50914;
+          color: #fff;
           font-size: 0.95rem;
 
           &:hover {
-            background-color: #e50914;
-            color: #000;
+            background-color: #f20a15;
           }
         }
       }
