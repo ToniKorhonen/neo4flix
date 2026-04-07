@@ -34,22 +34,29 @@ spring:
           max-active: 8
           max-idle: 8
           min-idle: 0
+      connect-timeout: 2000ms
   
   cache:
     type: redis
     redis:
       time-to-live: 600000
+  
+  # Fail gracefully if Redis is not available
+  devtools:
+    restart:
+      enabled: false
 
 server:
   port: 8001
   servlet:
-    context-path: /api/v1
+    context-path: /
 
 logging:
   level:
     root: INFO
     com.neo4flix: DEBUG
     org.springframework.web: DEBUG
+    org.springframework.data.neo4j: DEBUG
 
 management:
   endpoints:
@@ -59,4 +66,3 @@ management:
   endpoint:
     health:
       show-details: always
-

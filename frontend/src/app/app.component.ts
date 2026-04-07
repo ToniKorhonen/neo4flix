@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { AuthService } from './shared/services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +14,7 @@ export class AppComponent implements OnInit {
   title = 'Neo4flix';
   isLoggedIn = false;
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
 
   ngOnInit() {
     // Vérifier si l'utilisateur est connecté
@@ -21,13 +22,11 @@ export class AppComponent implements OnInit {
   }
 
   checkLoginStatus() {
-    const token = localStorage.getItem('authToken');
-    this.isLoggedIn = !!token;
+    this.isLoggedIn = this.authService.isAuthenticated();
   }
 
   logout() {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
+    this.authService.logout();
     this.isLoggedIn = false;
     this.router.navigate(['/auth']);
   }

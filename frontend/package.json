@@ -4,8 +4,8 @@
   "description": "Neo4flix movie recommendation engine frontend",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --ssl --ssl-cert certs/cert.pem --ssl-key certs/key.pem",
-    "dev": "ng serve --ssl --ssl-cert certs/cert.pem --ssl-key certs/key.pem --open",
+    "start": "ng serve --ssl --ssl-cert certs/cert.pem --ssl-key certs/key.pem --proxy-config proxy.conf.js",
+    "dev": "ng serve --ssl --ssl-cert certs/cert.pem --ssl-key certs/key.pem --proxy-config proxy.conf.js --open",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",

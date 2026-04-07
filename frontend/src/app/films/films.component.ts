@@ -2,14 +2,17 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { FilmService } from '@app/shared/services/film.service';
 
 interface Film {
   id: number;
   title: string;
   releaseDate: string;
-  genre: string;
-  rating: number;
+  genres?: Array<{ id: number; name: string }>;
+  genre?: string;
+  rating?: number;
   poster?: string;
+  description?: string;
 }
 
 @Component({
@@ -20,68 +23,39 @@ interface Film {
   styleUrls: ['./films.component.scss']
 })
 export class FilmsComponent implements OnInit {
-  // ...existing code...
   films: Film[] = [];
   filteredFilms: Film[] = [];
   searchQuery: string = '';
+  loading: boolean = false;
+
+  constructor(private filmService: FilmService) {}
 
   ngOnInit() {
     this.loadFilms();
   }
 
   loadFilms() {
-    // Données fictives pour l'instant
-    this.films = [
-      {
-        id: 1,
-        title: 'The Shawshank Redemption',
-        releaseDate: '1994',
-        genre: 'Drama',
-        rating: 9.3,
-        poster: 'https://via.placeholder.com/300x450?text=Shawshank'
+    this.loading = true;
+    this.filmService.getFilms().subscribe({
+      next: (data: any[]) => {
+        this.films = data.map(film => ({
+          id: film.id,
+          title: film.title,
+          releaseDate: film.releaseDate,
+          genres: film.genres,
+          genre: film.genres?.map((g: any) => g.name).join(', ') || 'Unknown',
+          rating: film.rating,
+          poster: film.poster || 'https://via.placeholder.com/300x450?text=' + encodeURIComponent(film.title),
+          description: film.description
+        }));
+        this.filteredFilms = [...this.films];
+        this.loading = false;
       },
-      {
-        id: 2,
-        title: 'The Godfather',
-        releaseDate: '1972',
-        genre: 'Crime, Drama',
-        rating: 9.2,
-        poster: 'https://via.placeholder.com/300x450?text=Godfather'
-      },
-      {
-        id: 3,
-        title: 'The Dark Knight',
-        releaseDate: '2008',
-        genre: 'Action, Crime, Drama',
-        rating: 9.0,
-        poster: 'https://via.placeholder.com/300x450?text=DarkKnight'
-      },
-      {
-        id: 4,
-        title: 'Pulp Fiction',
-        releaseDate: '1994',
-        genre: 'Crime, Drama',
-        rating: 8.9,
-        poster: 'https://via.placeholder.com/300x450?text=PulpFiction'
-      },
-      {
-        id: 5,
-        title: 'Forrest Gump',
-        releaseDate: '1994',
-        genre: 'Drama, Romance',
-        rating: 8.8,
-        poster: 'https://via.placeholder.com/300x450?text=ForrestGump'
-      },
-      {
-        id: 6,
-        title: 'Inception',
-        releaseDate: '2010',
-        genre: 'Action, Sci-Fi, Thriller',
-        rating: 8.8,
-        poster: 'https://via.placeholder.com/300x450?text=Inception'
+      error: (err) => {
+        console.error('Error loading films:', err);
+        this.loading = false;
       }
-    ];
-    this.filteredFilms = [...this.films];
+    });
   }
 
   searchFilms() {
@@ -91,7 +65,7 @@ export class FilmsComponent implements OnInit {
     } else {
       this.filteredFilms = this.films.filter(film =>
         film.title.toLowerCase().includes(query) ||
-        film.genre.toLowerCase().includes(query)
+        (film.genre?.toLowerCase().includes(query) ?? false)
       );
     }
   }

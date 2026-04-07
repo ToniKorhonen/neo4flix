@@ -38,7 +38,7 @@ public class CorsConfig {
                 .cors(cors -> {}) // active la config CORS ci-dessus
                 .headers(headers -> headers.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 🔥 IMPORTANT pour le preflight
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() //  IMPORTANT pour le preflight
                         .anyRequest().permitAll()
                 );
 
