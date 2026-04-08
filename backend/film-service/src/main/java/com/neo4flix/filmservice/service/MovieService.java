@@ -1,6 +1,7 @@
 package com.neo4flix.filmservice.service;
 
 import com.neo4flix.filmservice.dto.MovieDTO;
+import com.neo4flix.filmservice.entity.Genre;
 import com.neo4flix.filmservice.entity.Movie;
 import com.neo4flix.filmservice.mapper.MovieMapper;
 import com.neo4flix.filmservice.repository.MovieRepository;
@@ -9,8 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,9 +38,16 @@ public class MovieService {
             
             List<MovieDTO> result = movies.stream()
                     .map(movie -> {
-                        log.debug("Mapping movie: id={}, title={}, genres={}", 
-                            movie.getId(), movie.getTitle(), 
-                            movie.getGenres() != null ? movie.getGenres().size() : 0);
+                        // Charger les genres pour ce movie
+                        List<Map<String, Object>> genreMaps = movieRepository.findGenresForMovie(movie.getId());
+                        Set<Genre> genres = new HashSet<>();
+                        for (Map<String, Object> genreMap : genreMaps) {
+                            Genre genre = new Genre();
+                            genre.setId(((Number) genreMap.get("id")).longValue());
+                            genre.setName((String) genreMap.get("name"));
+                            genres.add(genre);
+                        }
+                        movie.setGenres(genres);
                         return movieMapper.toDTO(movie);
                     })
                     .collect(Collectors.toList());
@@ -59,7 +70,20 @@ public class MovieService {
                 throw new RuntimeException("Movie not found with id: " + id);
             }
             
-            MovieDTO result = movieMapper.toDTO(movie.get());
+            Movie foundMovie = movie.get();
+            
+            // Charger les genres pour ce movie
+            List<Map<String, Object>> genreMaps = movieRepository.findGenresForMovie(id);
+            Set<Genre> genres = new HashSet<>();
+            for (Map<String, Object> genreMap : genreMaps) {
+                Genre genre = new Genre();
+                genre.setId(((Number) genreMap.get("id")).longValue());
+                genre.setName((String) genreMap.get("name"));
+                genres.add(genre);
+            }
+            foundMovie.setGenres(genres);
+            
+            MovieDTO result = movieMapper.toDTO(foundMovie);
             log.info("Successfully fetched and mapped movie: {}", result.getTitle());
             return result;
         } catch (Exception e) {

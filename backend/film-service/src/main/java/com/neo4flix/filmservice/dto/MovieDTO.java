@@ -15,6 +15,7 @@ public class MovieDTO {
     private Long id;
     private String title;
     private String releaseDate;
+    private Integer year;
     private String poster;
     private String description;
     private List<GenreDTO> genres;

@@ -8,6 +8,8 @@ import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
 import org.springframework.data.neo4j.core.schema.Relationship;
+import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
+import org.springframework.data.annotation.Transient;
 
 import java.util.Set;
 
@@ -26,6 +28,9 @@ public class Movie {
     
     @Property("releaseDate")
     private String releaseDate;
+    
+    @Property("year")
+    private Integer year;
     
     @Property("poster")
     private String poster;
