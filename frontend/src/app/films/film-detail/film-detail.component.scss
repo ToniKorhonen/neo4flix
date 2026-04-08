@@ -153,6 +153,32 @@
     }
   }
 
+  .loading {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+    }
+  }
+
+  .error {
+    text-align: center;
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+
+    p {
+      font-size: 1rem;
+      margin: 0;
+    }
+  }
+
   .no-film {
     text-align: center;
     padding: 60px 20px;

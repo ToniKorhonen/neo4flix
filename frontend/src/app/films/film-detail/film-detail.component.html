@@ -1,9 +1,17 @@
-<div class="film-detail-container" *ngIf="film">
+<div class="film-detail-container">
   <div class="film-header">
     <a routerLink="/films" class="back-button">← Retour aux films</a>
   </div>
 
-  <div class="film-content">
+  <div *ngIf="loading" class="loading">
+    <p>Chargement du film...</p>
+  </div>
+
+  <div *ngIf="error" class="error">
+    <p>{{ error }}</p>
+  </div>
+
+  <div class="film-content" *ngIf="film">
     <div class="film-poster-section">
       <img [src]="film.poster" [alt]="film.title" class="film-poster" />
     </div>
@@ -43,10 +51,8 @@
       </div>
     </div>
   </div>
-</div>
 
-<div class="film-detail-container" *ngIf="!film">
-  <div class="no-film">
+  <div *ngIf="!loading && !film" class="no-film">
     <p>Film non trouvé</p>
     <a routerLink="/films" class="back-button">Retour aux films</a>
   </div>

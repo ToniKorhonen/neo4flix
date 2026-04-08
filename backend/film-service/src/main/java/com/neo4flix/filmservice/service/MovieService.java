@@ -10,6 +10,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,6 +46,25 @@ public class MovieService {
         } catch (Exception e) {
             log.error("Error fetching movies from Neo4j", e);
             throw new RuntimeException("Failed to fetch movies: " + e.getMessage(), e);
+        }
+    }
+
+    public MovieDTO getMovieById(Long id) {
+        try {
+            log.info("Fetching movie with id: {}", id);
+            Optional<Movie> movie = movieRepository.findMovieById(id);
+            
+            if (movie.isEmpty()) {
+                log.warn("Movie with id {} not found", id);
+                throw new RuntimeException("Movie not found with id: " + id);
+            }
+            
+            MovieDTO result = movieMapper.toDTO(movie.get());
+            log.info("Successfully fetched and mapped movie: {}", result.getTitle());
+            return result;
+        } catch (Exception e) {
+            log.error("Error fetching movie by id", e);
+            throw new RuntimeException("Failed to fetch movie: " + e.getMessage(), e);
         }
     }
     

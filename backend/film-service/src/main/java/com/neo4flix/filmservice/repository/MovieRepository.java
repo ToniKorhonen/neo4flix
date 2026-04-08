@@ -7,12 +7,16 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MovieRepository extends Neo4jRepository<Movie, Long> {
     
     @Query("MATCH (m:Movie) RETURN m ORDER BY m.id")
     List<Movie> findAllMovies();
+    
+    @Query("MATCH (m:Movie) WHERE m.id = $id RETURN m")
+    Optional<Movie> findMovieById(@Param("id") Long id);
     
     @Query("MATCH (m:Movie) WHERE m.title CONTAINS $title RETURN m ORDER BY m.id")
     List<Movie> findByTitleContains(@Param("title") String title);

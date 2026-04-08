@@ -33,6 +33,13 @@ public class FilmController {
         List<MovieDTO> films = movieService.getAllMovies();
         return ResponseEntity.ok(films);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<MovieDTO> getFilmById(@PathVariable Long id) {
+        log.info("GET /films/{} - Retrieving film by id", id);
+        MovieDTO film = movieService.getMovieById(id);
+        return ResponseEntity.ok(film);
+    }
     
     @GetMapping("/search")
     public ResponseEntity<List<MovieDTO>> searchFilms(@RequestParam String q) {
