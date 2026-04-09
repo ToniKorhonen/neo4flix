@@ -1,6 +1,7 @@
 package com.neo4flix.filmservice.service;
 
 import com.neo4flix.filmservice.dto.MovieDTO;
+import com.neo4flix.filmservice.dto.PaginatedMovieResponse;
 import com.neo4flix.filmservice.entity.Genre;
 import com.neo4flix.filmservice.entity.Movie;
 import com.neo4flix.filmservice.mapper.MovieMapper;
@@ -103,6 +104,95 @@ public class MovieService {
         } catch (Exception e) {
             log.error("Error searching movies by title", e);
             throw new RuntimeException("Failed to search movies: " + e.getMessage(), e);
+        }
+    }
+    public PaginatedMovieResponse searchMoviesPaginated(String title, int page, int pageSize) {
+        try {
+            log.info("Searching movies paginated: title={}, page={}, pageSize={}", title, page, pageSize);
+            
+            // Calculer le skip
+            long skip = (long) (page - 1) * pageSize;
+            
+            // Récupérer les films pour la page
+            List<Movie> movies = movieRepository.findByTitleContainsPaginated(title, skip, pageSize);
+            
+            // Charger les genres pour chaque film
+            List<MovieDTO> movieDTOs = movies.stream()
+                    .map(movie -> {
+                        List<Map<String, Object>> genreMaps = movieRepository.findGenresForMovie(movie.getId());
+                        Set<Genre> genres = new HashSet<>();
+                        for (Map<String, Object> genreMap : genreMaps) {
+                            Genre genre = new Genre();
+                            genre.setId(((Number) genreMap.get("id")).longValue());
+                            genre.setName((String) genreMap.get("name"));
+                            genres.add(genre);
+                        }
+                        movie.setGenres(genres);
+                        return movieMapper.toDTO(movie);
+                    })
+                    .collect(Collectors.toList());
+            
+            // Récupérer le total
+            long totalElements = movieRepository.countByTitleContains(title);
+            int totalPages = (int) Math.ceil((double) totalElements / pageSize);
+            
+            log.info("Successfully fetched {} movies for search query '{}' on page {}", movieDTOs.size(), title, page);
+            
+            return PaginatedMovieResponse.builder()
+                    .content(movieDTOs)
+                    .totalElements(totalElements)
+                    .totalPages(totalPages)
+                    .currentPage(page)
+                    .pageSize(pageSize)
+                    .build();
+        } catch (Exception e) {
+            log.error("Error searching paginated movies", e);
+            throw new RuntimeException("Failed to search paginated movies: " + e.getMessage(), e);
+        }
+    }
+    
+    public PaginatedMovieResponse getMoviesPaginated(int page, int pageSize) {
+        try {
+            log.info("Fetching movies paginated: page={}, pageSize={}", page, pageSize);
+            
+            // Calculer le skip
+            long skip = (long) (page - 1) * pageSize;
+            
+            // Récupérer les films pour la page
+            List<Movie> movies = movieRepository.findMoviesPaginated(skip, pageSize);
+            
+            // Charger les genres pour chaque film
+            List<MovieDTO> movieDTOs = movies.stream()
+                    .map(movie -> {
+                        List<Map<String, Object>> genreMaps = movieRepository.findGenresForMovie(movie.getId());
+                        Set<Genre> genres = new HashSet<>();
+                        for (Map<String, Object> genreMap : genreMaps) {
+                            Genre genre = new Genre();
+                            genre.setId(((Number) genreMap.get("id")).longValue());
+                            genre.setName((String) genreMap.get("name"));
+                            genres.add(genre);
+                        }
+                        movie.setGenres(genres);
+                        return movieMapper.toDTO(movie);
+                    })
+                    .collect(Collectors.toList());
+            
+            // Récupérer le total
+            long totalElements = movieRepository.countAllMovies();
+            int totalPages = (int) Math.ceil((double) totalElements / pageSize);
+            
+            log.info("Successfully fetched {} movies for page {}", movieDTOs.size(), page);
+            
+            return PaginatedMovieResponse.builder()
+                    .content(movieDTOs)
+                    .totalElements(totalElements)
+                    .totalPages(totalPages)
+                    .currentPage(page)
+                    .pageSize(pageSize)
+                    .build();
+        } catch (Exception e) {
+            log.error("Error fetching paginated movies", e);
+            throw new RuntimeException("Failed to fetch paginated movies: " + e.getMessage(), e);
         }
     }
     

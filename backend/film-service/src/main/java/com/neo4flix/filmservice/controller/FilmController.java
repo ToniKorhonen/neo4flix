@@ -1,6 +1,7 @@
 package com.neo4flix.filmservice.controller;
 
 import com.neo4flix.filmservice.dto.MovieDTO;
+import com.neo4flix.filmservice.dto.PaginatedMovieResponse;
 import com.neo4flix.filmservice.service.MovieService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,25 @@ public class FilmController {
         log.info("GET /films - Retrieving all films");
         List<MovieDTO> films = movieService.getAllMovies();
         return ResponseEntity.ok(films);
+    }
+
+    @GetMapping("/paginated")
+    public ResponseEntity<PaginatedMovieResponse> getFilmsPaginated(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "30") int pageSize) {
+        log.info("GET /films/paginated - Retrieving paginated films: page={}, pageSize={}", page, pageSize);
+        PaginatedMovieResponse response = movieService.getMoviesPaginated(page, pageSize);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/search/paginated")
+    public ResponseEntity<PaginatedMovieResponse> searchFilmsPaginated(
+            @RequestParam String q,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "30") int pageSize) {
+        log.info("GET /films/search/paginated?q={} - Searching films paginated: page={}, pageSize={}", q, page, pageSize);
+        PaginatedMovieResponse response = movieService.searchMoviesPaginated(q, page, pageSize);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")

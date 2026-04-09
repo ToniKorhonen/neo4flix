@@ -16,11 +16,23 @@ public interface MovieRepository extends Neo4jRepository<Movie, Long> {
     @Query("MATCH (m:Movie) RETURN m")
     List<Movie> findAllMovies();
     
+    @Query("MATCH (m:Movie) RETURN m ORDER BY m.id SKIP $skip LIMIT $limit")
+    List<Movie> findMoviesPaginated(@Param("skip") long skip, @Param("limit") long limit);
+    
+    @Query("MATCH (m:Movie) RETURN count(m) AS count")
+    long countAllMovies();
+    
     @Query("MATCH (m:Movie) WHERE m.id = $id RETURN m")
     Optional<Movie> findMovieById(@Param("id") Long id);
     
     @Query("MATCH (m:Movie) WHERE m.title CONTAINS $title RETURN m")
     List<Movie> findByTitleContains(@Param("title") String title);
+
+    @Query("MATCH (m:Movie) WHERE m.title CONTAINS $title RETURN m ORDER BY m.id SKIP $skip LIMIT $limit")
+    List<Movie> findByTitleContainsPaginated(@Param("title") String title, @Param("skip") long skip, @Param("limit") long limit);
+
+    @Query("MATCH (m:Movie) WHERE m.title CONTAINS $title RETURN count(m) AS count")
+    long countByTitleContains(@Param("title") String title);
     
     @Query("MATCH (m:Movie)-[:HAS_GENRE]->(g:Genre) WHERE g.name = $genreName RETURN m")
     List<Movie> findByGenre(@Param("genreName") String genreName);

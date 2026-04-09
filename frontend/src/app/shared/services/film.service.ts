@@ -15,6 +15,12 @@ export class FilmService {
     return this.http.get<any[]>(this.apiUrl);
   }
 
+  getFilmsPaginated(page: number, pageSize: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/paginated`, {
+      params: { page: page.toString(), pageSize: pageSize.toString() }
+    });
+  }
+
   getFilmById(id: string): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
@@ -35,6 +41,12 @@ export class FilmService {
   searchFilms(query: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/search`, {
       params: { q: query }
+    });
+  }
+
+  searchFilmsPaginated(query: string, page: number, pageSize: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/search/paginated`, {
+      params: { q: query, page: page.toString(), pageSize: pageSize.toString() }
     });
   }
 }

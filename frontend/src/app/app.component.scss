@@ -69,9 +69,13 @@
           background-color: #e50914;
           color: #fff;
           font-size: 0.95rem;
+          transition: all 0.3s ease;
 
           &:hover {
-            background-color: #f20a15;
+            color: white;
+            background-color: #b20710;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(229, 9, 20, 0.3);
           }
         }
       }
