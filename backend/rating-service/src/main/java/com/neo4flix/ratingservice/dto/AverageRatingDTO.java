@@ -1,0 +1,17 @@
+package com.neo4flix.ratingservice.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class AverageRatingDTO {
+    private Long movieId;
+    private Double averageRating;
+    private Long totalRatings;
+}
+

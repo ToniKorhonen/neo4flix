@@ -39,7 +39,10 @@ public interface MovieRepository extends Neo4jRepository<Movie, Long> {
     
     @Query("MATCH (m:Movie {id: $id})-[:HAS_GENRE]->(g:Genre) RETURN {id: g.id, name: g.name} AS genre")
     List<Map<String, Object>> findGenresForMovie(@Param("id") Long id);
+    
+    @Query("MATCH (u:User)-[r:RATED]->(m:Movie {id: $id}) RETURN AVG(r.rating) AS avgRating")
+    Double findAverageRatingForMovie(@Param("id") Long id);
+    
+    @Query("MATCH (u:User)-[r:RATED]->(m:Movie) RETURN m.id AS movieId, AVG(r.rating) AS avgRating GROUP BY m.id")
+    List<Map<String, Object>> findAverageRatingsForAllMovies();
 }
-
-
-

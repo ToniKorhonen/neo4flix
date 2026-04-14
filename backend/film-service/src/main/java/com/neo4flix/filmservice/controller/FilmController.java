@@ -19,7 +19,7 @@ import java.util.Map;
 public class FilmController {
     
     private final MovieService movieService;
-    
+
     @GetMapping("/health")
     public ResponseEntity<Map<String, String>> health() {
         Map<String, String> response = new HashMap<>();
