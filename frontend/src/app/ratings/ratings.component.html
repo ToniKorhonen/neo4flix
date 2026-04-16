@@ -5,7 +5,6 @@
   </div>
 
   <div *ngIf="error" class="error-message">{{ error }}</div>
-  <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
 
   <div *ngIf="isLoading" class="loading">Chargement des films...</div>
 
@@ -119,3 +118,26 @@
   </div>
 </div>
 
+<!-- Modal de suppression -->
+<div class="delete-modal-overlay" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
+  <div class="delete-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Supprimer cette note</h2>
+      <button class="close-btn" (click)="closeDeleteModal()" [disabled]="isDeleting">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <p>Êtes-vous sûr de vouloir supprimer cette note ?</p>
+      <p class="warning">Cette action est irréversible.</p>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeDeleteModal()" [disabled]="isDeleting">
+        Annuler
+      </button>
+      <button class="btn btn-danger" (click)="confirmDelete()" [disabled]="isDeleting">
+        {{ isDeleting ? 'Suppression...' : 'Supprimer' }}
+      </button>
+    </div>
+  </div>
+</div>

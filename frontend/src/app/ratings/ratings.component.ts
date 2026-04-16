@@ -45,6 +45,11 @@ export class RatingsComponent implements OnInit, OnDestroy {
   isSubmitting: boolean = false;
   error: string | null = null;
   successMessage: string | null = null;
+  
+  // Modal de suppression
+  showDeleteModal: boolean = false;
+  filmToDelete: number | null = null;
+  isDeleting: boolean = false;
   constructor(
     private route: ActivatedRoute,
     private ratingService: RatingService,
@@ -141,13 +146,6 @@ export class RatingsComponent implements OnInit, OnDestroy {
       rating: existingRating || 0 
     };
     this.hoverRating = 0;
-    // Scroll vers le menu de rating
-    setTimeout(() => {
-      const ratingMenu = document.querySelector('.rating-menu-panel');
-      if (ratingMenu) {
-        ratingMenu.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 100);
   }
   
   selectFilmById(filmId: number) {
@@ -199,16 +197,12 @@ export class RatingsComponent implements OnInit, OnDestroy {
     this.ratingService.rateMovie(this.userId, this.userRating.movieId, this.userRating.rating).subscribe({
       next: (response) => {
         this.ratedFilms.set(this.userRating.movieId, this.userRating.rating);
-        this.successMessage = `Film noté ${this.userRating.rating}/5!`;
         this.isSubmitting = false;
-        setTimeout(() => {
-          this.resetForm();
-          this.successMessage = null;
-          // Recharger les notes pour s'assurer que tout est à jour
-          if (this.userId) {
-            this.loadUserRatings(this.userId);
-          }
-        }, 1500);
+        // Recharger les notes et fermer le formulaire
+        if (this.userId) {
+          this.loadUserRatings(this.userId);
+        }
+        this.resetForm();
       },
       error: (err) => {
         console.error('Error rating movie:', err);
@@ -231,25 +225,43 @@ export class RatingsComponent implements OnInit, OnDestroy {
       return;
     }
     
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette note ?')) {
-      this.ratingService.deleteRating(this.userId, filmId).subscribe({
-        next: () => {
-          this.ratedFilms.delete(filmId);
-          this.successMessage = 'Note supprimée avec succès';
-          setTimeout(() => {
-            this.successMessage = null;
-            // Recharger les notes
-            if (this.userId) {
-              this.loadUserRatings(this.userId);
-            }
-          }, 1500);
-        },
-        error: (err) => {
-          console.error('Error deleting rating:', err);
-          this.error = 'Erreur lors de la suppression de la note';
-        }
-      });
+    this.filmToDelete = filmId;
+    this.showDeleteModal = true;
+  }
+
+  confirmDelete() {
+    if (!this.userId || !this.filmToDelete) {
+      return;
     }
+
+    this.isDeleting = true;
+    this.ratingService.deleteRating(this.userId, this.filmToDelete).subscribe({
+      next: () => {
+        this.ratedFilms.delete(this.filmToDelete!);
+        this.isDeleting = false;
+        
+        // Fermer le formulaire si le film supprimé est celui actuellement ouvert
+        if (this.selectedFilm?.id === this.filmToDelete) {
+          this.resetForm();
+        }
+        
+        this.closeDeleteModal();
+        // Recharger les notes
+        if (this.userId) {
+          this.loadUserRatings(this.userId);
+        }
+      },
+      error: (err) => {
+        console.error('Error deleting rating:', err);
+        this.error = 'Erreur lors de la suppression de la note';
+        this.isDeleting = false;
+      }
+    });
+  }
+
+  closeDeleteModal() {
+    this.showDeleteModal = false;
+    this.filmToDelete = null;
   }
   getFilmTitle(filmId: number): string {
     const film = this.films.find(f => f.id === filmId);
