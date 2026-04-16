@@ -6,15 +6,18 @@ import com.neo4flix.ratingservice.service.RatingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/ratings")
+@RequestMapping("/ratings")
 @RequiredArgsConstructor
 @Slf4j
 public class RatingController {
@@ -55,5 +58,18 @@ public class RatingController {
         List<AverageRatingDTO> averageRatings = ratingService.getAverageRatingsForAllMovies();
         return ResponseEntity.ok(averageRatings);
     }
-}
+    
+    @PostMapping("/user/{userId}/movie/{movieId}")
+    public ResponseEntity<RatingDTO> createRating(@PathVariable Long userId, @PathVariable Long movieId, @RequestBody RatingDTO ratingDTO) {
+        log.info("POST request: Create rating for user {} and movie {}", userId, movieId);
+        RatingDTO createdRating = ratingService.createRating(userId, movieId, ratingDTO);
+        return ResponseEntity.ok(createdRating);
+    }
 
+    @DeleteMapping("/user/{userId}/movie/{movieId}")
+    public ResponseEntity<Void> deleteRating(@PathVariable Long userId, @PathVariable Long movieId) {
+        log.info("DELETE request: Delete rating for user {} and movie {}", userId, movieId);
+        ratingService.deleteRating(userId, movieId);
+        return ResponseEntity.noContent().build();
+    }
+}

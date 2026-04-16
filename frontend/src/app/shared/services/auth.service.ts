@@ -28,6 +28,8 @@ export class AuthService {
   private apiUrl = `${environment.apiUrl}/auth`;
   private authStatusSubject = new BehaviorSubject<boolean>(this.isAuthenticatedSync());
   public authStatus$ = this.authStatusSubject.asObservable();
+  private userIdSubject = new BehaviorSubject<number | null>(this.extractUserIdFromToken());
+  public userId$ = this.userIdSubject.asObservable();
 
   constructor(private http: HttpClient) { }
 
@@ -42,6 +44,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem(environment.jwtTokenKey);
     this.authStatusSubject.next(false);
+    this.userIdSubject.next(null);
   }
 
   getToken(): string | null {
@@ -51,6 +54,7 @@ export class AuthService {
   setToken(token: string): void {
     localStorage.setItem(environment.jwtTokenKey, token);
     this.authStatusSubject.next(true);
+    this.userIdSubject.next(this.extractUserIdFromToken());
   }
 
   isAuthenticated(): boolean {
@@ -61,8 +65,20 @@ export class AuthService {
     return !!this.getToken();
   }
 
+  private extractUserIdFromToken(): number | null {
+    const token = this.getToken();
+    if (!token) {
+      return null;
+    }
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.userId;
+  }
+
+  getCurrentUserId(): number | null {
+    return this.extractUserIdFromToken();
+  }
+
   refreshToken(): Observable<{ token: string }> {
     return this.http.post<{ token: string }>(`${this.apiUrl}/refresh`, {});
   }
 }
-

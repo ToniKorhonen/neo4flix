@@ -4,7 +4,12 @@
     <h1>Évaluer les films</h1>
   </div>
 
-  <div class="ratings-content">
+  <div *ngIf="error" class="error-message">{{ error }}</div>
+  <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+
+  <div *ngIf="isLoading" class="loading">Chargement des films...</div>
+
+  <div class="ratings-content" *ngIf="!isLoading">
     <div class="rating-form" *ngIf="selectedFilm">
       <div class="form-header">
         <h2>{{ selectedFilm.title }}</h2>
@@ -23,7 +28,7 @@
         <label>Votre note:</label>
         <div class="star-rating">
           <span
-            *ngFor="let i of [1,2,3,4,5,6,7,8,9,10]"
+            *ngFor="let i of getStars()"
             class="star"
             [class.active]="userRating.rating >= i"
             [class.hover]="hoverRating >= i"
@@ -35,23 +40,15 @@
           </span>
         </div>
         <div class="rating-value">
-          {{ hoverRating || userRating.rating || 0 }}/10
+          {{ hoverRating || userRating.rating || 0 }}/5
         </div>
       </div>
 
-      <div class="comment-input">
-        <label for="comment">Commentaire (optionnel):</label>
-        <textarea
-          id="comment"
-          [(ngModel)]="userRating.comment"
-          placeholder="Partagez votre avis sur ce film..."
-          rows="4"
-        ></textarea>
-      </div>
-
       <div class="form-actions">
-        <button class="btn btn-primary" (click)="submitRating()">Valider la note</button>
-        <button class="btn btn-secondary" (click)="resetForm()">Annuler</button>
+        <button class="btn btn-primary" (click)="submitRating()" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Enregistrement...' : 'Valider la note' }}
+        </button>
+        <button class="btn btn-secondary" (click)="resetForm()" [disabled]="isSubmitting">Annuler</button>
       </div>
     </div>
 
@@ -74,24 +71,49 @@
             <h4>{{ film.title }}</h4>
             <p class="genre">{{ film.genre }}</p>
             <div *ngIf="getRatingForFilm(film.id)" class="existing-rating">
-              <span class="stars">★ {{ getRatingForFilm(film.id)?.rating }}/10</span>
-              <button class="delete-btn" (click)="deleteRating(film.id)">Supprimer</button>
+              <span class="stars">★ {{ getRatingForFilm(film.id) }}/5</span>
+              <button class="delete-btn" (click)="deleteRating(film.id); $event.stopPropagation()">Supprimer</button>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <div class="rated-films" *ngIf="ratedFilms.length > 0">
-    <h2>Vos évaluations</h2>
-    <div class="rated-list">
-      <div *ngFor="let rating of ratedFilms" class="rated-item">
-        <div class="rated-info">
-          <h4>{{ getFilmTitle(rating.filmId) }}</h4>
-          <span class="rating-badge">★ {{ rating.rating }}/10</span>
+      <!-- Pagination -->
+      <div class="pagination-controls" *ngIf="totalPages > 1">
+        <div class="pagination-buttons">
+          <button
+            class="pagination-btn first-btn"
+            (click)="previousPage()"
+            [disabled]="currentPage === 1"
+            title="Première page"
+          >
+            « Précédent
+          </button>
+
+          <div class="page-numbers">
+            <button
+              *ngFor="let page of getPageNumbers()"
+              class="page-number"
+              [class.active]="page === currentPage"
+              (click)="goToPage(page)"
+            >
+              {{ page }}
+            </button>
+          </div>
+
+          <button
+            class="pagination-btn last-btn"
+            (click)="nextPage()"
+            [disabled]="currentPage === totalPages"
+            title="Dernière page"
+          >
+            Suivant »
+          </button>
         </div>
-        <p class="comment" *ngIf="rating.comment">{{ rating.comment }}</p>
+
+        <span class="pagination-info">
+          Page {{ currentPage }} / {{ totalPages }} ({{ totalElements }} films)
+        </span>
       </div>
     </div>
   </div>
