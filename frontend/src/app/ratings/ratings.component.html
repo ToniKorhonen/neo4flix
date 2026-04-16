@@ -10,7 +10,7 @@
   <div *ngIf="isLoading" class="loading">Chargement des films...</div>
 
   <div class="ratings-content" *ngIf="!isLoading">
-    <div class="rating-form" *ngIf="selectedFilm">
+    <div class="rating-form rating-menu-panel" *ngIf="selectedFilm">
       <div class="form-header">
         <h2>{{ selectedFilm.title }}</h2>
         <button class="close-btn" (click)="resetForm()">✕</button>

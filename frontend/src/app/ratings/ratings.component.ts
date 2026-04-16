@@ -40,6 +40,7 @@ export class RatingsComponent implements OnInit, OnDestroy {
   
   userId: number | null = null;
   private userIdSubscription: Subscription | null = null;
+  private filmIdToOpen: number | null = null;
   isLoading: boolean = false;
   isSubmitting: boolean = false;
   error: string | null = null;
@@ -51,9 +52,21 @@ export class RatingsComponent implements OnInit, OnDestroy {
     private authService: AuthService
   ) {}
   ngOnInit() {
+    // Récupérer le filmId des route params si présent
+    this.route.params.subscribe(params => {
+      if (params['filmId']) {
+        this.filmIdToOpen = parseInt(params['filmId'], 10);
+      }
+    });
+
     this.userIdSubscription = this.authService.userId$.subscribe(userId => {
       this.userId = userId;
-      this.loadFilms();
+      this.loadFilms(() => {
+        // Après le chargement des films, ouvrir le film si un filmId a été passé
+        if (this.filmIdToOpen) {
+          this.selectFilmById(this.filmIdToOpen);
+        }
+      });
       if (userId) {
         this.loadUserRatings(userId);
       }
@@ -61,7 +74,12 @@ export class RatingsComponent implements OnInit, OnDestroy {
     const currentUserId = this.authService.getCurrentUserId();
     if (currentUserId && !this.userId) {
       this.userId = currentUserId;
-      this.loadFilms();
+      this.loadFilms(() => {
+        // Après le chargement des films, ouvrir le film si un filmId a été passé
+        if (this.filmIdToOpen) {
+          this.selectFilmById(this.filmIdToOpen);
+        }
+      });
       this.loadUserRatings(currentUserId);
     }
   }
@@ -87,7 +105,7 @@ export class RatingsComponent implements OnInit, OnDestroy {
     });
   }
 
-  loadFilms() {
+  loadFilms(callback?: () => void) {
     this.isLoading = true;
     this.error = null;
     this.filmService.getFilmsPaginated(this.currentPage, this.pageSize).subscribe({
@@ -104,6 +122,9 @@ export class RatingsComponent implements OnInit, OnDestroy {
         this.currentPage = response.currentPage;
         this.isLoading = false;
         window.scrollTo(0, 0);
+        if (callback) {
+          callback();
+        }
       },
       error: (err) => {
         console.error('Error loading films:', err);
@@ -120,6 +141,39 @@ export class RatingsComponent implements OnInit, OnDestroy {
       rating: existingRating || 0 
     };
     this.hoverRating = 0;
+    // Scroll vers le menu de rating
+    setTimeout(() => {
+      const ratingMenu = document.querySelector('.rating-menu-panel');
+      if (ratingMenu) {
+        ratingMenu.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  }
+  
+  selectFilmById(filmId: number) {
+    // D'abord, chercher dans les films chargés
+    const filmToSelect = this.films.find(f => f.id === filmId);
+    if (filmToSelect) {
+      this.selectFilm(filmToSelect);
+    } else {
+      // Si le film n'est pas trouvé, le charger directement
+      this.filmService.getFilmById(filmId.toString()).subscribe({
+        next: (data: any) => {
+          const film: Film = {
+            id: data.id,
+            title: data.title,
+            releaseDate: data.releaseDate,
+            genre: data.genres?.map((g: any) => g.name).join(', ') || 'Unknown',
+            poster: data.poster || 'https://via.placeholder.com/150x225?text=' + encodeURIComponent(data.title)
+          };
+          this.selectFilm(film);
+        },
+        error: (err) => {
+          console.error('Error loading film:', err);
+          this.error = 'Erreur lors du chargement du film';
+        }
+      });
+    }
   }
   setRating(rating: number) {
     this.userRating.rating = rating;
