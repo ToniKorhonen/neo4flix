@@ -53,9 +53,47 @@
 
     <div class="films-list">
       <h3>Sélectionnez un film à évaluer:</h3>
+
+      <!-- Filtres -->
+      <div class="filters-section">
+        <div class="filter-group">
+          <input
+            type="text"
+            placeholder="Rechercher par titre..."
+            [(ngModel)]="titleFilter"
+            (ngModelChange)="onTitleFilterChange()"
+            class="filter-input"
+          />
+        </div>
+
+        <div class="filter-group">
+          <select [(ngModel)]="selectedYear" (ngModelChange)="onYearFilterChange()" class="filter-input">
+            <option value="">Toutes les années</option>
+            <option *ngFor="let year of getAvailableYears()" [value]="year">{{ year }}</option>
+          </select>
+        </div>
+
+        <button class="clear-filters-btn" (click)="clearFilters()">Réinitialiser</button>
+      </div>
+
+      <!-- Filtres par genre (checkboxes) -->
+      <div class="genre-filters" *ngIf="allGenres.length > 0">
+        <label class="genres-label">Genres:</label>
+        <div class="genre-checkboxes">
+          <label *ngFor="let genre of allGenres" class="genre-checkbox">
+            <input
+              type="checkbox"
+              [checked]="isGenreSelected(genre.name)"
+              (change)="toggleGenre(genre.name)"
+            />
+            <span>{{ genre.name }}</span>
+          </label>
+        </div>
+      </div>
+
       <div class="films-grid">
         <div
-          *ngFor="let film of films"
+          *ngFor="let film of getPagedFilms()"
           class="film-item"
           [class.selected]="selectedFilm?.id === film.id"
           [class.rated]="getRatingForFilm(film.id)"
@@ -78,7 +116,7 @@
       </div>
 
       <!-- Pagination -->
-      <div class="pagination-controls" *ngIf="totalPages > 1">
+      <div class="pagination-controls" *ngIf="getFilteredTotalPages() > 1">
         <div class="pagination-buttons">
           <button
             class="pagination-btn first-btn"
@@ -103,7 +141,7 @@
           <button
             class="pagination-btn last-btn"
             (click)="nextPage()"
-            [disabled]="currentPage === totalPages"
+            [disabled]="currentPage === getFilteredTotalPages()"
             title="Dernière page"
           >
             Suivant »
@@ -111,7 +149,7 @@
         </div>
 
         <span class="pagination-info">
-          Page {{ currentPage }} / {{ totalPages }} ({{ totalElements }} films)
+          Page {{ currentPage }} / {{ getFilteredTotalPages() }} ({{ filteredFilms.length }} films)
         </span>
       </div>
     </div>

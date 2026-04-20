@@ -11,6 +11,7 @@ interface Film {
   title: string;
   genre?: string;
   releaseDate?: string;
+  year?: number;
   genres?: Array<{ id: number; name: string }>;
   poster?: string;
 }
@@ -27,16 +28,22 @@ interface UserRating {
 })
 export class RatingsComponent implements OnInit, OnDestroy {
   films: Film[] = [];
+  filteredFilms: Film[] = [];
   selectedFilm: Film | null = null;
   userRating: UserRating = { movieId: 0, rating: 0 };
   ratedFilms: Map<number, number> = new Map();
   hoverRating: number = 0;
   
+  // Filtres
+  titleFilter: string = '';
+  selectedYear: string = '';
+  selectedGenres: Set<string> = new Set();
+  allGenres: Array<{ id: number; name: string }> = [];
+  private searchTimeout: any;
+  
   // Pagination
   currentPage: number = 1;
   pageSize: number = 30;
-  totalPages: number = 1;
-  totalElements: number = 0;
   
   userId: number | null = null;
   private userIdSubscription: Subscription | null = null;
@@ -57,6 +64,9 @@ export class RatingsComponent implements OnInit, OnDestroy {
     private authService: AuthService
   ) {}
   ngOnInit() {
+    // Charger les genres
+    this.loadGenres();
+
     // Récupérer le filmId des route params si présent
     this.route.params.subscribe(params => {
       if (params['filmId']) {
@@ -113,18 +123,22 @@ export class RatingsComponent implements OnInit, OnDestroy {
   loadFilms(callback?: () => void) {
     this.isLoading = true;
     this.error = null;
-    this.filmService.getFilmsPaginated(this.currentPage, this.pageSize).subscribe({
-      next: (response: any) => {
-        this.films = response.content.map((film: any) => ({
+    
+    // Charger tous les films (sans pagination backend, on pagine côté client)
+    this.filmService.getFilms().subscribe({
+      next: (response: any[]) => {
+        this.films = response.map((film: any) => ({
           id: film.id,
           title: film.title,
           releaseDate: film.releaseDate,
+          year: film.year,
+          genres: film.genres,
           genre: film.genres?.map((g: any) => g.name).join(', ') || 'Unknown',
           poster: film.poster || 'https://via.placeholder.com/150x225?text=' + encodeURIComponent(film.title)
         }));
-        this.totalPages = response.totalPages;
-        this.totalElements = response.totalElements;
-        this.currentPage = response.currentPage;
+        // Extraire les genres depuis les films chargés
+        this.extractGenresFromFilms();
+        this.applyFilters();
         this.isLoading = false;
         window.scrollTo(0, 0);
         if (callback) {
@@ -137,6 +151,91 @@ export class RatingsComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       }
     });
+  }
+
+  loadGenres() {
+    // Les genres seront extraits depuis les films lors du loadFilms
+    // Pas besoin d'appel API supplémentaire
+  }
+
+  extractGenresFromFilms() {
+    const genresSet = new Set<string>();
+    this.films.forEach(film => {
+      if (film.genres && film.genres.length > 0) {
+        film.genres.forEach(g => {
+          genresSet.add(g.name);
+        });
+      }
+    });
+    this.allGenres = Array.from(genresSet)
+      .map((name, index) => ({ id: index, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  applyFilters() {
+    this.filteredFilms = this.films.filter(film => {
+      // Filtre par titre
+      if (this.titleFilter.trim()) {
+        if (!film.title.toLowerCase().includes(this.titleFilter.toLowerCase())) {
+          return false;
+        }
+      }
+
+      // Filtre par année
+      if (this.selectedYear.trim()) {
+        const selectedYearNum = parseInt(this.selectedYear, 10);
+        if (film.year !== selectedYearNum) {
+          return false;
+        }
+      }
+
+      // Filtre par genres (si des genres sont sélectionnés)
+      if (this.selectedGenres.size > 0) {
+        const filmGenres = film.genres?.map(g => g.name) || [];
+        const hasGenre = Array.from(this.selectedGenres).some(selectedGenre =>
+          filmGenres.includes(selectedGenre)
+        );
+        if (!hasGenre) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+    this.currentPage = 1;
+  }
+
+  onTitleFilterChange() {
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+    this.searchTimeout = setTimeout(() => {
+      this.applyFilters();
+    }, 300);
+  }
+
+  onYearFilterChange() {
+    this.applyFilters();
+  }
+
+  toggleGenre(genreName: string) {
+    if (this.selectedGenres.has(genreName)) {
+      this.selectedGenres.delete(genreName);
+    } else {
+      this.selectedGenres.add(genreName);
+    }
+    this.applyFilters();
+  }
+
+  isGenreSelected(genreName: string): boolean {
+    return this.selectedGenres.has(genreName);
+  }
+
+  clearFilters() {
+    this.titleFilter = '';
+    this.selectedYear = '';
+    this.selectedGenres.clear();
+    this.applyFilters();
   }
   selectFilm(film: Film) {
     this.selectedFilm = film;
@@ -271,36 +370,60 @@ export class RatingsComponent implements OnInit, OnDestroy {
     return [1, 2, 3, 4, 5];
   }
 
+  getPagedFilms(): Film[] {
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    return this.filteredFilms.slice(startIndex, endIndex);
+  }
+
+  getFilteredTotalPages(): number {
+    return Math.ceil(this.filteredFilms.length / this.pageSize);
+  }
+
   goToPage(page: number) {
-    if (page >= 1 && page <= this.totalPages) {
+    const maxPage = this.getFilteredTotalPages();
+    if (page >= 1 && page <= maxPage) {
       this.currentPage = page;
-      this.loadFilms();
+      window.scrollTo(0, 0);
     }
   }
 
   nextPage() {
-    if (this.currentPage < this.totalPages) {
+    if (this.currentPage < this.getFilteredTotalPages()) {
       this.currentPage++;
-      this.loadFilms();
+      window.scrollTo(0, 0);
     }
   }
 
   previousPage() {
     if (this.currentPage > 1) {
       this.currentPage--;
-      this.loadFilms();
+      window.scrollTo(0, 0);
     }
   }
 
   getPageNumbers(): number[] {
     const pages: number[] = [];
     const range = 5;
+    const maxPage = this.getFilteredTotalPages();
     let start = Math.max(1, this.currentPage - range);
-    let end = Math.min(this.totalPages, this.currentPage + range);
+    let end = Math.min(maxPage, this.currentPage + range);
     
     for (let i = start; i <= end; i++) {
       pages.push(i);
     }
     return pages;
+  }
+
+  getAvailableYears(): string[] {
+    const yearsSet = new Set<number>();
+    this.films.forEach(film => {
+      if (film.year) {
+        yearsSet.add(film.year);
+      }
+    });
+    return Array.from(yearsSet)
+      .sort((a, b) => b - a)
+      .map(year => year.toString());
   }
 }

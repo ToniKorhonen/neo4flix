@@ -236,6 +236,106 @@
         margin-bottom: 20px;
       }
 
+      .filters-section {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        align-items: center;
+
+        .filter-group {
+          flex: 1;
+          min-width: 150px;
+        }
+
+        .filter-input {
+          width: 100%;
+          padding: 10px 15px;
+          border: 1px solid #ddd;
+          border-radius: 5px;
+          font-size: 0.95rem;
+          background-color: #fff;
+          color: #333;
+          transition: border-color 0.3s ease;
+
+          &:focus {
+            outline: none;
+            border-color: #e50914;
+          }
+
+          &::placeholder {
+            color: #999;
+          }
+        }
+
+        .clear-filters-btn {
+          padding: 10px 20px;
+          background-color: #e8e8e8;
+          color: #333;
+          border: 1px solid #bbb;
+          border-radius: 5px;
+          font-weight: 600;
+          font-size: 0.95rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          white-space: nowrap;
+
+          &:hover {
+            border-color: #e50914;
+            color: #e50914;
+            background-color: #fff;
+          }
+        }
+      }
+
+      .genre-filters {
+        background: #f9f9f9;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+
+        .genres-label {
+          display: block;
+          font-weight: 600;
+          color: #222;
+          margin-bottom: 12px;
+          font-size: 0.95rem;
+        }
+
+        .genre-checkboxes {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+          gap: 10px;
+
+          .genre-checkbox {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+
+            input[type="checkbox"] {
+              margin-right: 8px;
+              cursor: pointer;
+              width: 16px;
+              height: 16px;
+              accent-color: #e50914;
+            }
+
+            span {
+              color: #333;
+              font-size: 0.9rem;
+            }
+
+            &:hover {
+              span {
+                color: #e50914;
+              }
+            }
+          }
+        }
+      }
+
       .films-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
