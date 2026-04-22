@@ -3,14 +3,60 @@
     <div class="title-section">
       <h1>Films</h1>
     </div>
-    <div class="search-bar">
-      <input
-        type="text"
-        placeholder="Rechercher par titre..."
-        [(ngModel)]="searchQuery"
-        (ngModelChange)="onSearchChange()"
-        class="search-input"
-      />
+
+    <!-- Filtres -->
+    <div class="filters-section">
+      <div class="filter-row">
+        <!-- Filtre par titre -->
+        <div class="filter-item">
+          <label for="titleFilter">Titre:</label>
+          <input
+            id="titleFilter"
+            type="text"
+            placeholder="Rechercher par titre..."
+            [(ngModel)]="titleFilter"
+            (ngModelChange)="onTitleFilterChange()"
+            class="filter-input"
+          />
+        </div>
+
+        <!-- Filtre par année -->
+        <div class="filter-item">
+          <label for="yearFilter">Année:</label>
+          <select
+            id="yearFilter"
+            [(ngModel)]="selectedYear"
+            (ngModelChange)="onYearFilterChange()"
+            class="filter-select"
+          >
+            <option value="">Tous les ans</option>
+            <option *ngFor="let year of availableYears" [value]="year.toString()">
+              {{ year }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Bouton Clear Filters -->
+        <button class="filter-btn-clear" (click)="clearFilters()"
+                [disabled]="!titleFilter && !selectedYear && selectedGenres.size === 0">
+          Réinitialiser
+        </button>
+      </div>
+
+      <!-- Filtre par genres -->
+      <div class="filter-genres">
+        <label>Genres:</label>
+        <div class="genres-grid">
+          <label *ngFor="let genre of allGenres" class="genre-checkbox">
+            <input
+              type="checkbox"
+              [checked]="isGenreSelected(genre.name)"
+              (change)="toggleGenre(genre.name)"
+            />
+            {{ genre.name }}
+          </label>
+        </div>
+      </div>
     </div>
   </div>
 

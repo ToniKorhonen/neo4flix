@@ -24,9 +24,17 @@ interface Film {
 })
 export class FilmsComponent implements OnInit {
   paginatedFilms: Film[] = [];
+  allFilms: Film[] = [];
   searchQuery: string = '';
   loading: boolean = false;
   isSearching: boolean = false;
+  
+  // Filtres
+  titleFilter: string = '';
+  selectedYear: string = '';
+  selectedGenres: Set<string> = new Set();
+  allGenres: Array<{ id: number; name: string }> = [];
+  availableYears: number[] = [];
   
   // Pagination
   currentPage: number = 1;
@@ -54,24 +62,15 @@ export class FilmsComponent implements OnInit {
   constructor(private filmService: FilmService) {}
 
   ngOnInit() {
-    this.loadFilmsForPage(this.currentPage);
+    this.loadAllFilms();
   }
 
-  loadFilmsForPage(pageNumber: number) {
+  loadAllFilms() {
     this.loading = true;
     
-    let request;
-    if (this.isSearching && this.searchQuery.trim() !== '') {
-      // Utiliser la recherche paginée
-      request = this.filmService.searchFilmsPaginated(this.searchQuery, pageNumber, this.itemsPerPage);
-    } else {
-      // Utiliser la pagination normale
-      request = this.filmService.getFilmsPaginated(pageNumber, this.itemsPerPage);
-    }
-    
-    request.subscribe({
+    this.filmService.getFilms().subscribe({
       next: (response: any) => {
-        this.paginatedFilms = response.content.map((film: any) => ({
+        this.allFilms = response.map((film: any) => ({
           id: film.id,
           title: film.title,
           releaseDate: film.releaseDate,
@@ -81,9 +80,9 @@ export class FilmsComponent implements OnInit {
           poster: film.poster || 'https://via.placeholder.com/300x450?text=' + encodeURIComponent(film.title),
           description: film.description
         }));
-        this.currentPage = response.currentPage;
-        this.totalPages = response.totalPages;
-        this.totalElements = response.totalElements;
+        
+        this.extractGenresAndYears();
+        this.applyFilters();
         this.loading = false;
         window.scrollTo(0, 0);
       },
@@ -94,40 +93,149 @@ export class FilmsComponent implements OnInit {
     });
   }
 
-  searchFilms() {
-    // Déclencher la recherche immédiatement (pour le cas où l'utilisateur appuie sur Entrée)
-    this.currentPage = 1;
-    this.isSearching = this.searchQuery.trim() !== '';
-    this.loadFilmsForPage(1);
+  extractGenresAndYears() {
+    const genresSet = new Set<string>();
+    const yearsSet = new Set<number>();
+    
+    this.allFilms.forEach(film => {
+      if (film.genres && film.genres.length > 0) {
+        film.genres.forEach(g => {
+          genresSet.add(g.name);
+        });
+      }
+      
+      if (film.releaseDate) {
+        const year = parseInt(film.releaseDate.split('-')[2], 10);
+        if (!isNaN(year)) {
+          yearsSet.add(year);
+        }
+      }
+    });
+    
+    this.allGenres = Array.from(genresSet)
+      .map((name, index) => ({ id: index, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    
+    this.availableYears = Array.from(yearsSet).sort((a, b) => b - a);
   }
 
-  onSearchChange() {
-    // Effacer le timeout précédent
+  applyFilters() {
+    let filteredFilms = this.allFilms.filter(film => {
+      // Filtre par titre
+      if (this.titleFilter.trim()) {
+        if (!film.title.toLowerCase().includes(this.titleFilter.toLowerCase())) {
+          return false;
+        }
+      }
+
+      // Filtre par année
+      if (this.selectedYear.trim()) {
+        const selectedYearNum = parseInt(this.selectedYear, 10);
+        const filmYear = parseInt(film.releaseDate?.split('-')[2] || '', 10);
+        if (filmYear !== selectedYearNum) {
+          return false;
+        }
+      }
+
+      // Filtre par genres
+      if (this.selectedGenres.size > 0) {
+        const filmGenres = film.genres?.map(g => g.name) || [];
+        const hasGenre = Array.from(this.selectedGenres).some(selectedGenre =>
+          filmGenres.includes(selectedGenre)
+        );
+        if (!hasGenre) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    this.totalElements = filteredFilms.length;
+    this.totalPages = Math.ceil(this.totalElements / this.itemsPerPage);
+    this.currentPage = 1;
+    this.paginateResults(filteredFilms);
+  }
+
+  paginateResults(films: Film[]) {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedFilms = films.slice(startIndex, endIndex);
+  }
+
+  onTitleFilterChange() {
     if (this.searchTimeout) {
       clearTimeout(this.searchTimeout);
     }
-
-    // Créer un nouveau timeout
     this.searchTimeout = setTimeout(() => {
-      this.searchFilms();
-    }, 300); // 300ms de délai pour moins de latence
+      this.applyFilters();
+    }, 300);
   }
 
-  clearSearch() {
-    this.searchQuery = '';
-    this.isSearching = false;
-    this.currentPage = 1;
-    if (this.searchTimeout) {
-      clearTimeout(this.searchTimeout);
+  onYearFilterChange() {
+    this.applyFilters();
+  }
+
+  toggleGenre(genreName: string) {
+    if (this.selectedGenres.has(genreName)) {
+      this.selectedGenres.delete(genreName);
+    } else {
+      this.selectedGenres.add(genreName);
     }
-    this.loadFilmsForPage(1);
+    this.applyFilters();
+  }
+
+  isGenreSelected(genreName: string): boolean {
+    return this.selectedGenres.has(genreName);
+  }
+
+  clearFilters() {
+    this.titleFilter = '';
+    this.selectedYear = '';
+    this.selectedGenres.clear();
+    this.applyFilters();
   }
 
   goToPage(pageNumber: number) {
     if (pageNumber < 1 || pageNumber > this.totalPages) {
       return;
     }
-    this.loadFilmsForPage(pageNumber);
+    this.currentPage = pageNumber;
+    
+    // Réappliquer les filtres pour obtenir les films filtrés et paginer
+    let filteredFilms = this.allFilms.filter(film => {
+      // Filtre par titre
+      if (this.titleFilter.trim()) {
+        if (!film.title.toLowerCase().includes(this.titleFilter.toLowerCase())) {
+          return false;
+        }
+      }
+
+      // Filtre par année
+      if (this.selectedYear.trim()) {
+        const selectedYearNum = parseInt(this.selectedYear, 10);
+        const filmYear = parseInt(film.releaseDate?.split('-')[2] || '', 10);
+        if (filmYear !== selectedYearNum) {
+          return false;
+        }
+      }
+
+      // Filtre par genres
+      if (this.selectedGenres.size > 0) {
+        const filmGenres = film.genres?.map(g => g.name) || [];
+        const hasGenre = Array.from(this.selectedGenres).some(selectedGenre =>
+          filmGenres.includes(selectedGenre)
+        );
+        if (!hasGenre) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    this.paginateResults(filteredFilms);
+    window.scrollTo(0, 0);
   }
 
   goToFirstPage() {
